@@ -1,26 +1,26 @@
 {
-  "name": "30svideo_server",
-  "version": "1.0.0",
-  "description": "Create sever for website 30svideo",
-  "main": "server.js",
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "start" : "nodemon server.js"
-  },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/vuhoangdungnd/30svideo_server.git"
-  },
-  "author": "",
-  "license": "ISC",
-  "bugs": {
-    "url": "https://github.com/vuhoangdungnd/30svideo_server/issues"
-  },
-  "homepage": "https://github.com/vuhoangdungnd/30svideo_server#readme",
-  "dependencies": {
-    "express": "^4.18.2"
-  },
-  "devDependencies": {
-    "nodemon": "^2.0.22"
-  }
+    "name": "30svideo_server",
+    "version": "1.0.0",
+    "description": "Create sever for website 30svideo",
+    "main": "src/app.js",
+    "scripts": {
+        "test": "echo \"Error: no test specified\" && exit 1",
+        "start": "nodemon src/app.js"
+    },
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/vuhoangdungnd/30svideo_server.git"
+    },
+    "author": "",
+    "license": "ISC",
+    "bugs": {
+        "url": "https://github.com/vuhoangdungnd/30svideo_server/issues"
+    },
+    "homepage": "https://github.com/vuhoangdungnd/30svideo_server#readme",
+    "dependencies": {
+        "express": "^4.18.2"
+    },
+    "devDependencies": {
+        "nodemon": "^2.0.22"
+    }
 }
