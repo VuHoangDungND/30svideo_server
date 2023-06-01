@@ -1,19 +1,19 @@
 const db = require('../../config/db');
 
 class HomeControllers {
-    //[GET] /home
+    //[GET] /
     show(req, res, next) {
         // Creating Query
         let query =
-            'SELECT * FROM videos  , users , user_videos WHERE videos.id_video = user_videos.id_video AND user_videos.id_user= users.id_user';
+            'SELECT * FROM videos  , users , user_videos WHERE videos.id_video = user_videos.id_video AND user_videos.id_user= users.id_user ORDER BY RAND()';
 
         db.query(query, function (err, result) {
             if (err) throw err;
-            res.send(result);
+            res.json({ data: result });
         });
     }
 
-    //[POST] /home
+    //[POST] /
     updateAccount(req, res, next) {
         console.log(req.body);
         // Creating Query
