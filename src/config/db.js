@@ -10,7 +10,7 @@ var db = mysql.createConnection({
 });
 
 db.connect(function (err) {
-    if (err) throw err;
+    if (err) return res.sendStatus(400);
     console.log('Connected!!!');
 });
 

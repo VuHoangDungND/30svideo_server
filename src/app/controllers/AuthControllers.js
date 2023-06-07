@@ -3,18 +3,19 @@ const jwt = require('jsonwebtoken');
 require('dotenv').config();
 
 class AuthControlllers {
-    // authentication
+    // xác thực người dùng
     verifyToken(req, res, next) {
         const authorizationClient = req.headers['authorization'];
         const token = authorizationClient && authorizationClient.split(' ')[1];
 
         if (!token) {
-            return res.json({ message: 'A token is required for authentication' });
+            //nếu không có token trả về 401
+            return res.sendStatus(401);
         }
 
-        console.log(req.query);
         jwt.verify(token, process.env.SECRET_KEY, function (err, decoded) {
-            req.query = decoded;
+            if (err) return res.sendStatus(403);
+            req.query = decoded.data;
             next();
         });
     }
@@ -34,7 +35,7 @@ class AuthControlllers {
 
         //response
         db.query(query, function (err, result) {
-            if (err) throw err;
+            if (err) return res.sendStatus(400);
 
             const token = jwt.sign({ data: result }, process.env.SECRET_KEY, {
                 expiresIn: '2h',
@@ -74,22 +75,22 @@ class AuthControlllers {
 
         //response
         db.query(queryCheck, function (err, result) {
-            if (err) throw err;
+            if (err) return res.sendStatus(400);
             if (result.length !== 0)
-                res.json({
+                res.status(200).json({
                     message: 'Tài khoản đã tồn tại. Vui lòng nhập tài khoản khác',
                     data: null,
                 });
             else {
                 db.query(queryCreateUser, function (err, result) {
-                    if (err) throw err;
+                    if (err) return res.sendStatus(400);
                 });
                 db.query(queryCreateAccount, function (err, result) {
-                    if (err) throw err;
+                    if (err) return res.sendStatus(400);
                 });
-                res.json({
-                    data: {},
+                res.status(200).json({
                     message: 'Tài khoản đã tạo thành công',
+                    data: {},
                 });
             }
         });

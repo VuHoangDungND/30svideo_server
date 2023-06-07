@@ -16,13 +16,14 @@ class UserControllers {
 
         //response
         db.query(query, function (err, result) {
-            if (err) throw err;
+            if (err) return res.sendStatus(400);
             res.status(200).json({ data: result });
         });
     }
 
     //[GET] /user/
     showUser(req, res, next) {
+        console.log(req.query);
         res.json({ data: req.query });
     }
 
@@ -36,7 +37,7 @@ class UserControllers {
 
         //response
         db.query(query, function (err, result) {
-            if (err) throw err;
+            if (err) return res.sendStatus(400);
             res.status(200).json({ data: result });
         });
     }
@@ -54,7 +55,7 @@ class UserControllers {
 
         //response
         db.query(query, function (err, result) {
-            if (err) throw err;
+            if (err) return res.sendStatus(400);
             res.status(200).json({ data: result });
         });
     }
