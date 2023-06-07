@@ -1,5 +1,6 @@
 const db = require('../../config/db');
 const jwt = require('jsonwebtoken');
+require('dotenv').config();
 
 class AuthControlllers {
     // authentication
@@ -7,14 +8,14 @@ class AuthControlllers {
         const authorizationClient = req.headers['authorization'];
         const token = authorizationClient && authorizationClient.split(' ')[1];
 
-        console.log(token);
-
         if (!token) {
-            return res.status(401).send('A token is required for authentication');
+            return res.json({ message: 'A token is required for authentication' });
         }
 
-        jwt.verify(token, 'dungnd', function (err, decoded) {
-            console.log(err, decoded);
+        console.log(req.query);
+        jwt.verify(token, process.env.SECRET_KEY, function (err, decoded) {
+            req.query = decoded;
+            next();
         });
     }
 
@@ -31,14 +32,17 @@ class AuthControlllers {
             password +
             "' AND accounts.id_user = users.id_user";
 
-        //respone
+        //response
         db.query(query, function (err, result) {
             if (err) throw err;
 
+            const token = jwt.sign({ data: result }, process.env.SECRET_KEY, {
+                expiresIn: '2h',
+            });
             if (result.length === 0)
-                res.status(200).json({ message: 'Tài khoản không tồn tại', data: null });
+                res.status(200).json({ message: 'Tài khoản không tồn tại', token: null });
             else {
-                res.status(200).json({ message: 'Đăng nhập thành công', data: result });
+                res.status(200).json({ message: 'Đăng nhập thành công', token: token });
             }
         });
     }
@@ -68,7 +72,7 @@ class AuthControlllers {
             password +
             "')";
 
-        //respone
+        //response
         db.query(queryCheck, function (err, result) {
             if (err) throw err;
             if (result.length !== 0)
@@ -83,7 +87,10 @@ class AuthControlllers {
                 db.query(queryCreateAccount, function (err, result) {
                     if (err) throw err;
                 });
-                res.json({ data: { id_user: id_user, nickname: id_user, full_name: id_user } });
+                res.json({
+                    data: {},
+                    message: 'Tài khoản đã tạo thành công',
+                });
             }
         });
     }

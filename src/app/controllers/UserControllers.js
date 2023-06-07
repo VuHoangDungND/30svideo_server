@@ -21,6 +21,11 @@ class UserControllers {
         });
     }
 
+    //[GET] /user/
+    showUser(req, res, next) {
+        res.json({ data: req.query });
+    }
+
     //[GET] /user/userProfile
     showUserProfile(req, res, next) {
         var { id_user } = req.query;
