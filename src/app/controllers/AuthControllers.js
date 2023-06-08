@@ -15,7 +15,7 @@ class AuthControlllers {
 
         jwt.verify(token, process.env.SECRET_KEY, function (err, decoded) {
             if (err) return res.sendStatus(403);
-            req.query = decoded.data;
+            req.decoded = decoded.data[0];
             next();
         });
     }

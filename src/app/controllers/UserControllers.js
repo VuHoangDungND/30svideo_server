@@ -1,5 +1,10 @@
 const db = require('../../config/db');
 const jwt = require('jsonwebtoken');
+const cloudinary = require('../../config/cloudinary');
+const fs = require('fs');
+const { promisify } = require('util');
+const { json } = require('express/lib/response');
+const unlinkAsync = promisify(fs.unlink);
 
 class UserControllers {
     //[GET] /user/suggestAccounts
@@ -23,8 +28,7 @@ class UserControllers {
 
     //[GET] /user/
     showUser(req, res, next) {
-        console.log(req.query);
-        res.json({ data: req.query });
+        res.status(200).json({ data: req.decoded });
     }
 
     //[GET] /user/userProfile
@@ -58,6 +62,31 @@ class UserControllers {
             if (err) return res.sendStatus(400);
             res.status(200).json({ data: result });
         });
+    }
+
+    //[POST] /user/uploadVideo
+    async uploadVideo(req, res, next) {
+        const file = req.file;
+        const info = JSON.parse(JSON.parse(JSON.stringify(req.body)).info);
+        const user = req.decoded;
+        console.log(user.id_user);
+        try {
+            await cloudinary.uploader.upload(
+                file.path,
+                {
+                    resource_type: 'video',
+                    folder: 'video',
+                },
+                function (err, result) {
+                    console.log(result);
+                },
+            );
+        } catch (error) {
+            console.log(error);
+        }
+
+        await unlinkAsync(file.path);
+        res.json({ messege: 'hehe' });
     }
 }
 
