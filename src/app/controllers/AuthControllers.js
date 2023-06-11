@@ -52,7 +52,7 @@ class AuthControlllers {
     register(req, res, next) {
         var { username, password } = req.body;
         let queryCheck, queryCreateUser, queryCreateAccount;
-        let id_user = Math.random().toString(12).slice(2);
+        let id_user = Math.random().toString(20);
 
         // Creating Query
         queryCheck = "SELECT * FROM accounts WHERE username LIKE  '" + username + "'";

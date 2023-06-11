@@ -53,7 +53,7 @@ class UserControllers {
 
         // Creating Query
         query =
-            "SELECT * FROM videos, user_videos WHERE videos.id_video = user_videos.id_video AND user_videos.id_user = '" +
+            "SELECT * FROM videos, user_have_videos WHERE videos.id_video = user_have_videos.id_video AND user_have_videos.id_user = '" +
             id_user +
             "'";
 
@@ -69,7 +69,9 @@ class UserControllers {
         const file = req.file;
         const info = JSON.parse(JSON.parse(JSON.stringify(req.body)).info);
         const user = req.decoded;
+        var dataVideo, queryCreateVideo, queryUserHaveVideo;
         console.log(user.id_user);
+        console.log(info.description);
         try {
             await cloudinary.uploader.upload(
                 file.path,
@@ -78,15 +80,42 @@ class UserControllers {
                     folder: 'video',
                 },
                 function (err, result) {
-                    console.log(result);
+                    dataVideo = result;
                 },
             );
         } catch (error) {
             console.log(error);
         }
 
+        console.log(dataVideo);
         await unlinkAsync(file.path);
-        res.json({ messege: 'hehe' });
+
+        // Creating Query
+        queryCreateVideo =
+            "INSERT INTO videos (id_video, video_url, description) VALUES ('" +
+            dataVideo.asset_id +
+            "', '" +
+            dataVideo.url +
+            "', '" +
+            info.description +
+            "') ";
+
+        queryUserHaveVideo =
+            "INSERT INTO user_have_videos (id_user, id_video) VALUES ('" +
+            user.id_user +
+            "', '" +
+            dataVideo.asset_id +
+            "') ";
+        //response
+        db.query(queryCreateVideo, function (err, result) {
+            if (err) return res.sendStatus(400);
+        });
+
+        db.query(queryUserHaveVideo, function (err, result) {
+            if (err) return res.sendStatus(400);
+        });
+
+        res.json({ messege: 'upload video thanh cong' });
     }
 }
 
