@@ -21,7 +21,7 @@ class UserControllers {
 
         //response
         db.query(query, function (err, result) {
-            if (err) return res.sendStatus(400);
+            if (err) return res.status(400);
             res.status(200).json({ data: result });
         });
     }
@@ -41,7 +41,7 @@ class UserControllers {
 
         //response
         db.query(query, function (err, result) {
-            if (err) return res.sendStatus(400);
+            if (err) return res.status(400);
             res.status(200).json({ data: result });
         });
     }
@@ -59,7 +59,7 @@ class UserControllers {
 
         //response
         db.query(query, function (err, result) {
-            if (err) return res.sendStatus(400);
+            if (err) return res.status(400);
             res.status(200).json({ data: result });
         });
     }
@@ -92,12 +92,14 @@ class UserControllers {
 
         // Creating Query
         queryCreateVideo =
-            "INSERT INTO videos (id_video, video_url, description) VALUES ('" +
+            "INSERT INTO videos (id_video, video_url, description, music) VALUES ('" +
             dataVideo.asset_id +
             "', '" +
             dataVideo.url +
             "', '" +
             info.description +
+            "', '" +
+            info.music +
             "') ";
 
         queryUserHaveVideo =
@@ -108,11 +110,11 @@ class UserControllers {
             "') ";
         //response
         db.query(queryCreateVideo, function (err, result) {
-            if (err) return res.sendStatus(400);
+            if (err) return res.status(400);
         });
 
         db.query(queryUserHaveVideo, function (err, result) {
-            if (err) return res.sendStatus(400);
+            if (err) return res.status(400);
         });
 
         res.json({ messege: 'upload video thanh cong' });

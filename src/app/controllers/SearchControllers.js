@@ -25,7 +25,7 @@ class SearchControllers {
 
         //response
         db.query(query, function (err, result) {
-            if (err) return res.sendStatus(400);
+            if (err) return res.status(400);
             res.status(200).json({ data: result });
         });
     }

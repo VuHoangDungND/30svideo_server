@@ -10,11 +10,11 @@ class AuthControlllers {
 
         if (!token) {
             //nếu không có token trả về 401
-            return res.sendStatus(401);
+            return res.status(401);
         }
 
         jwt.verify(token, process.env.SECRET_KEY, function (err, decoded) {
-            if (err) return res.sendStatus(403);
+            if (err) return res.status(403);
             req.decoded = decoded.data[0];
             next();
         });
@@ -35,7 +35,7 @@ class AuthControlllers {
 
         //response
         db.query(query, function (err, result) {
-            if (err) return res.sendStatus(400);
+            if (err) return res.status(400);
 
             const token = jwt.sign({ data: result }, process.env.SECRET_KEY, {
                 expiresIn: '2h',
@@ -75,7 +75,7 @@ class AuthControlllers {
 
         //response
         db.query(queryCheck, function (err, result) {
-            if (err) return res.sendStatus(400);
+            if (err) return res.status(400);
             if (result.length !== 0)
                 res.status(200).json({
                     message: 'Tài khoản đã tồn tại. Vui lòng nhập tài khoản khác',
@@ -83,10 +83,10 @@ class AuthControlllers {
                 });
             else {
                 db.query(queryCreateUser, function (err, result) {
-                    if (err) return res.sendStatus(400);
+                    if (err) return res.status(400);
                 });
                 db.query(queryCreateAccount, function (err, result) {
-                    if (err) return res.sendStatus(400);
+                    if (err) return res.status(400);
                 });
                 res.status(200).json({
                     message: 'Tài khoản đã tạo thành công',

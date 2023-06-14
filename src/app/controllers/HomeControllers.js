@@ -8,7 +8,7 @@ class HomeControllers {
             'SELECT * FROM videos  , users , user_have_videos WHERE videos.id_video = user_have_videos.id_video AND user_have_videos.id_user= users.id_user ORDER BY RAND()';
 
         db.query(query, function (err, result) {
-            if (err) return res.sendStatus(400);
+            if (err) return res.status(400);
             res.status(200).json({ data: result });
         });
     }
@@ -28,7 +28,7 @@ class HomeControllers {
             "');";
 
         db.query(query, function (err, result) {
-            if (err) return res.sendStatus(400);
+            if (err) return res.status(400);
             res.send(result);
         });
     }
