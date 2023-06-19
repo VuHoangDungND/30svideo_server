@@ -12,9 +12,11 @@ class UserControllers {
         let myUser = req.decoded;
         // Creating Query
         let query =
-            "SELECT  t.id_user, t.nickname, t.full_name, t.avatar, t.tick, t.followers, t.following, t.total_likes, t.id_video , t.video_url, t.music, t.download,t.share,t.description,t.likes,t.comments , COUNT(d.id_user_follower) AS follow_user  FROM ( SELECT a.id_user, a.nickname, a.full_name, a.avatar, a.tick, a.followers, a.following, a.total_likes, c.id_video , c.video_url, c.music, c.download,c.share,c.description,c.likes,c.comments FROM users a, user_have_videos b, videos c WHERE a.id_user = b.id_user AND c.id_video = b.id_video ) AS t LEFT JOIN user_follow_user d ON d.id_user_following = t.id_user AND d.id_user_follower LIKE '" +
+            "SELECT  t.id_user, t.nickname, t.full_name, t.avatar, t.tick, t.followers, t.following, t.total_likes, t.id_video , t.video_url, t.music, t.download,t.share,t.description,t.likes,t.comments , (SELECT COUNT(*) FROM user_follow_user d WHERE d.id_user_following = t.id_user AND d.id_user_follower LIKE '" +
             myUser.id_user +
-            "' GROUP BY   t.id_user, t.nickname, t.full_name, t.avatar, t.tick, t.followers, t.following, t.total_likes, t.id_video , t.video_url, t.music, t.download,t.share,t.description,t.likes,t.comments  ORDER BY RAND()";
+            "') AS follow_user, (SELECT COUNT(*) FROM user_like_videos e WHERE e.id_user LIKE '" +
+            myUser.id_user +
+            "' AND e.id_video = t.id_video) as like_video FROM ( SELECT a.id_user, a.nickname, a.full_name, a.avatar, a.tick, a.followers, a.following, a.total_likes, c.id_video , c.video_url, c.music, c.download,c.share,c.description,c.likes,c.comments FROM users a, user_have_videos b, videos c WHERE a.id_user = b.id_user AND c.id_video = b.id_video ) AS t  GROUP BY t.id_user, t.nickname, t.full_name, t.avatar, t.tick, t.followers, t.following, t.total_likes, t.id_video , t.video_url, t.music, t.download,t.share,t.description,t.likes,t.comments  ORDER BY RAND()";
 
         db.query(query, function (err, result) {
             if (err) return res.status(400);
@@ -25,21 +27,24 @@ class UserControllers {
     //[GET] /user/suggestAccounts
     showSuggestAccounts(req, res, next) {
         var { type } = req.query;
-        let myUser = req.decoded;
+        var myUser = req.decoded;
         var query;
-        console.log(myUser);
 
         // Creating Query
         if (type === 'less') {
             query =
-                "SELECT a.id_user, a.nickname, a.full_name, a.avatar, a.tick, a.followers, a.total_likes, COUNT(b.id_user_follower) as follow_user FROM users a LEFT JOIN user_follow_user b ON a.id_user = b.id_user_following AND b.id_user_follower LIKE '" +
+                "SELECT t.id_user, t.nickname, t.full_name, t.avatar, t.tick, t.followers, t.total_likes, COUNT(b.id_user_follower) as follow_user FROM (SELECT * FROM users a  WHERE a.id_user NOT LIKE '" +
                 myUser.id_user +
-                "' GROUP BY  a.id_user, a.nickname, a.full_name, a.avatar, a.tick, a.followers, a.total_likes LIMIT 5";
+                "') t LEFT JOIN user_follow_user b ON t.id_user = b.id_user_following AND b.id_user_follower LIKE '" +
+                myUser.id_user +
+                "' GROUP BY  t.id_user, t.nickname, t.full_name, t.avatar, t.tick, t.followers, t.total_likes LIMIT 5";
         } else if (type === 'more') {
             query =
-                'SELECT a.id_user, a.nickname, a.full_name, a.avatar, a.tick, a.followers, a.total_likes, COUNT(b.id_user_follower) as follow_user FROM users a LEFT JOIN user_follow_user b ON a.id_user = b.id_user_following AND b.id_user_follower LIKE ' +
+                "SELECT t.id_user, t.nickname, t.full_name, t.avatar, t.tick, t.followers, t.total_likes, COUNT(b.id_user_follower) as follow_user FROM (SELECT * FROM users a  WHERE a.id_user NOT LIKE '" +
                 myUser.id_user +
-                ' GROUP BY  a.id_user, a.nickname, a.full_name, a.avatar, a.tick, a.followers, a.total_likes LIMIT 10';
+                "') t LEFT JOIN user_follow_user b ON t.id_user = b.id_user_following AND b.id_user_follower LIKE '" +
+                myUser.id_user +
+                "' GROUP BY  t.id_user, t.nickname, t.full_name, t.avatar, t.tick, t.followers, t.total_likes LIMIT 10";
         }
 
         //response
@@ -49,23 +54,38 @@ class UserControllers {
         });
     }
 
-    //[GET] /user/
-    showUser(req, res, next) {
+    //[GET] /user/showMyUSer
+    showMyUser(req, res, next) {
         res.status(200).json({ data: req.decoded });
     }
 
     //[GET] /user/userProfile
     showUserProfile(req, res, next) {
         var { id_user } = req.query;
-        var query;
+        var query, checkFollowQuery;
+        var myUser = req.decoded;
+        var isFollowing;
 
         // Creating Query
+        checkFollowQuery =
+            "SELECT COUNT(*) as follow_user FROM user_follow_user a WHERE a.id_user_follower = '" +
+            myUser.id_user +
+            "' AND a.id_user_following = '" +
+            id_user +
+            "'";
+
         query = "SELECT * FROM users WHERE id_user = '" + id_user + "'";
 
         //response
+        db.query(checkFollowQuery, function (err, result) {
+            if (err) return res.status(400);
+            isFollowing = result[0].follow_user;
+            console.log(isFollowing);
+        });
+
         db.query(query, function (err, result) {
             if (err) return res.status(400);
-            res.status(200).json({ data: result });
+            res.status(200).json({ data: { ...result[0], follow_user: isFollowing } });
         });
     }
 
@@ -93,8 +113,7 @@ class UserControllers {
         const info = JSON.parse(JSON.parse(JSON.stringify(req.body)).info);
         const user = req.decoded;
         var dataVideo, queryCreateVideo, queryUserHaveVideo;
-        console.log(user.id_user);
-        console.log(info.description);
+
         try {
             await cloudinary.uploader.upload(
                 file.path,
@@ -139,8 +158,73 @@ class UserControllers {
         db.query(queryUserHaveVideo, function (err, result) {
             if (err) return res.status(400);
         });
+        res.json({ message: 'upload video thanh cong' });
+    }
 
-        res.json({ messege: 'upload video thanh cong' });
+    //[GET] /user/like
+    likeVideo(req, res, next) {
+        var { id_user, id_video } = req.query;
+        var myUser = req.decoded;
+        var update_Users_TotalLikesQuery, create_UserLikeVideosQuery, update_Videos_LikesQuery;
+
+        // Creating Query
+        update_Users_TotalLikesQuery =
+            "UPDATE users SET total_likes = total_likes+1 WHERE id_user='" + id_user + "'";
+
+        update_Videos_LikesQuery =
+            "UPDATE videos SET likes = likes+1 WHERE id_video='" + id_video + "'";
+        create_UserLikeVideosQuery =
+            "INSERT INTO user_like_videos (id_user, id_video) VALUES ('" +
+            myUser.id_user +
+            "', '" +
+            id_video +
+            "');";
+
+        //response
+        db.query(update_Users_TotalLikesQuery, function (err, result) {
+            if (err) return res.status(400);
+        });
+
+        db.query(update_Videos_LikesQuery, function (err, result) {
+            if (err) return res.status(400);
+        });
+
+        db.query(create_UserLikeVideosQuery, function (err, result) {
+            if (err) return res.status(400);
+        });
+    }
+
+    //[GET] /user/unlike
+    unlikeVideo(req, res, next) {
+        var { id_user, id_video } = req.query;
+        var myUser = req.decoded;
+        var update_Users_TotalLikesQuery, delete_UserLikeVideosQuery, update_Videos_LikesQuery;
+
+        // Creating Query
+        update_Users_TotalLikesQuery =
+            "UPDATE users SET total_likes = total_likes+1 WHERE id_user='" + id_user + "'";
+
+        update_Videos_LikesQuery =
+            "UPDATE videos SET likes = likes+1 WHERE id_video='" + id_video + "'";
+        delete_UserLikeVideosQuery =
+            "DELETE FROM user_like_videos WHERE user_like_videos.id_user = '" +
+            myUser.id_user +
+            "' AND user_like_videos.id_video = '" +
+            id_video +
+            "'";
+
+        //response
+        db.query(update_Users_TotalLikesQuery, function (err, result) {
+            if (err) return res.status(400);
+        });
+
+        db.query(update_Videos_LikesQuery, function (err, result) {
+            if (err) return res.status(400);
+        });
+
+        db.query(delete_UserLikeVideosQuery, function (err, result) {
+            if (err) return res.status(400);
+        });
     }
 }
 

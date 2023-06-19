@@ -7,7 +7,7 @@ const UserControllers = require('../app/controllers/UserControllers');
 const AuthControlllers = require('../app/controllers/AuthControllers');
 
 router.get('/videos', UserControllers.showListVideos);
-router.get('/userProfile', UserControllers.showUserProfile);
+router.get('/userProfile', AuthControlllers.verifyToken, UserControllers.showUserProfile);
 router.get('/suggestAccounts', AuthControlllers.verifyToken, UserControllers.showSuggestAccounts);
 router.post(
     '/uploadVideo',
@@ -16,7 +16,10 @@ router.post(
     UserControllers.uploadVideo,
 );
 
-router.get('/showMyUser', AuthControlllers.verifyToken, UserControllers.showUser);
+router.get('/likeVideo', AuthControlllers.verifyToken, UserControllers.likeVideo);
+router.get('/unlikeVideo', AuthControlllers.verifyToken, UserControllers.unlikeVideo);
+
+router.get('/showMyUser', AuthControlllers.verifyToken, UserControllers.showMyUser);
 router.get('/', AuthControlllers.verifyToken, UserControllers.show);
 
 module.exports = router;

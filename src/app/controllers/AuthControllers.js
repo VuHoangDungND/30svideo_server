@@ -41,6 +41,7 @@ class AuthControlllers {
             const token = jwt.sign({ data: result }, process.env.SECRET_KEY, {
                 expiresIn: '2h',
             });
+
             if (result.length === 0)
                 res.status(200).json({ message: 'Tài khoản không tồn tại', token: null });
             else {
