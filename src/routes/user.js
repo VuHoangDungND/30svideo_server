@@ -6,7 +6,7 @@ const upload = multer({ dest: 'public/uploads/' });
 const UserControllers = require('../app/controllers/UserControllers');
 const AuthControlllers = require('../app/controllers/AuthControllers');
 
-router.get('/videos', UserControllers.showListVideos);
+router.get('/listUserVideos', UserControllers.showListVideos);
 router.get('/userProfile', AuthControlllers.verifyToken, UserControllers.showUserProfile);
 router.get('/suggestAccounts', AuthControlllers.verifyToken, UserControllers.showSuggestAccounts);
 router.post(
@@ -16,8 +16,8 @@ router.post(
     UserControllers.uploadVideo,
 );
 
-router.get('/likeVideo', AuthControlllers.verifyToken, UserControllers.likeVideo);
-router.get('/unlikeVideo', AuthControlllers.verifyToken, UserControllers.unlikeVideo);
+router.post('/likeVideo', AuthControlllers.verifyToken, UserControllers.likeVideo);
+router.post('/unlikeVideo', AuthControlllers.verifyToken, UserControllers.unlikeVideo);
 
 router.get('/showMyUser', AuthControlllers.verifyToken, UserControllers.showMyUser);
 router.get('/', AuthControlllers.verifyToken, UserControllers.show);

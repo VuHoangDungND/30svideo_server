@@ -16,6 +16,7 @@ class HomeControllers {
     //[GET] /userProfile
     showUserProfile(req, res, next) {
         var { id_user } = req.query;
+        console.log(1);
         var query;
 
         // Creating Query
@@ -46,6 +47,34 @@ class HomeControllers {
         db.query(query, function (err, result) {
             if (err) return res.status(400);
             res.status(200).json({ data: result });
+        });
+    }
+
+    //[GET] /download
+    download(req, res, next) {
+        var { id_video } = req.body;
+        var query;
+
+        // Creating Query
+        query = "UPDATE videos SET download = download+1 WHERE id_video='" + id_video + "'";
+
+        //response
+        db.query(query, function (err, result) {
+            if (err) return res.status(400);
+        });
+    }
+
+    //[GET] /share
+    share(req, res, next) {
+        var { id_video } = req.body;
+        var query;
+
+        // Creating Query
+        query = "UPDATE videos SET share = share+1 WHERE id_video='" + id_video + "'";
+
+        //response
+        db.query(query, function (err, result) {
+            if (err) return res.status(400);
         });
     }
 }
