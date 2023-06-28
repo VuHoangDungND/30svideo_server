@@ -16,7 +16,6 @@ class HomeControllers {
     //[GET] /userProfile
     showUserProfile(req, res, next) {
         var { id_user } = req.query;
-        console.log(1);
         var query;
 
         // Creating Query
@@ -32,7 +31,6 @@ class HomeControllers {
     //[GET] /watch
     watch(req, res, next) {
         var { id_user, id_video } = req.query;
-        console.log(id_user);
         var query;
 
         // Creating Query

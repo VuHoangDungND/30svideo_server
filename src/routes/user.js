@@ -16,6 +16,9 @@ router.post(
     UserControllers.uploadVideo,
 );
 
+router.post('/follow', AuthControlllers.verifyToken, UserControllers.follow);
+router.post('/unfollow', AuthControlllers.verifyToken, UserControllers.unFollow);
+
 router.post('/likeVideo', AuthControlllers.verifyToken, UserControllers.likeVideo);
 router.post('/unlikeVideo', AuthControlllers.verifyToken, UserControllers.unlikeVideo);
 

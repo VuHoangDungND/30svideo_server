@@ -31,7 +31,7 @@ class UserControllers {
 
         // Creating Query
         query =
-            "SELECT t.id_user, t.nickname, t.full_name, t.avatar, t.tick, t.followed, t.total_likes, COUNT(b.id_user_follower) as follow_user FROM (SELECT * FROM users a  WHERE a.id_user NOT LIKE '" +
+            "SELECT t.id_user, t.nickname, t.full_name, t.avatar, t.tick, t.followed, t.total_likes, COUNT(b.id_user_followed) as follow_user FROM (SELECT * FROM users a  WHERE a.id_user NOT LIKE '" +
             myUser.id_user +
             "') t LEFT JOIN user_follow_user b ON t.id_user = b.id_user_followed AND b.id_user_following LIKE '" +
             myUser.id_user +
@@ -70,7 +70,6 @@ class UserControllers {
         db.query(checkFollowQuery, function (err, result) {
             if (err) return res.status(400);
             isFollowing = result[0].follow_user;
-            console.log(isFollowing);
         });
 
         db.query(query, function (err, result) {
@@ -116,10 +115,9 @@ class UserControllers {
                 },
             );
         } catch (error) {
-            console.log(error);
+            le.log(error);
         }
 
-        console.log(dataVideo);
         await unlinkAsync(file.path);
 
         // Creating Query
@@ -218,7 +216,7 @@ class UserControllers {
     }
 
     //[POST] /user/follow
-    followVideo(req, res, next) {
+    follow(req, res, next) {
         var { id_user } = req.body;
         var myUser = req.decoded;
         var update_Users_FollowedQuery, update_Users_FollowingQuery, create_UserFollowUserQuery;
@@ -233,7 +231,7 @@ class UserControllers {
             "INSERT INTO user_follow_user (id_user_following, id_user_followed) VALUES ('" +
             myUser.id_user +
             "', '" +
-            id_video +
+            id_user +
             "');";
 
         //response
@@ -241,11 +239,44 @@ class UserControllers {
             if (err) return res.status(400);
         });
 
-        db.query(date_Users_FollowingQuery, function (err, result) {
+        db.query(update_Users_FollowingQuery, function (err, result) {
             if (err) return res.status(400);
         });
 
         db.query(create_UserFollowUserQuery, function (err, result) {
+            if (err) return res.status(400);
+        });
+    }
+
+    //[POST] /user/unfollow
+    unFollow(req, res, next) {
+        var { id_user } = req.body;
+        var myUser = req.decoded;
+        var update_Users_FollowedQuery, update_Users_FollowingQuery, delete_UserFollowUserQuery;
+
+        // Creating Query
+        update_Users_FollowedQuery =
+            "UPDATE users SET followed = followed-1 WHERE id_user='" + id_user + "'";
+
+        update_Users_FollowingQuery =
+            "UPDATE users SET following = following-1 WHERE id_user='" + myUser.id_user + "'";
+        delete_UserFollowUserQuery =
+            "DELETE FROM user_follow_user WHERE user_follow_user.id_user_following = '" +
+            myUser.id_user +
+            "' AND user_follow_user.id_user_followed = '" +
+            id_user +
+            "'";
+
+        //response
+        db.query(update_Users_FollowedQuery, function (err, result) {
+            if (err) return res.status(400);
+        });
+
+        db.query(update_Users_FollowingQuery, function (err, result) {
+            if (err) return res.status(400);
+        });
+
+        db.query(delete_UserFollowUserQuery, function (err, result) {
             if (err) return res.status(400);
         });
     }
