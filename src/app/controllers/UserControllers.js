@@ -16,7 +16,7 @@ class UserControllers {
             myUser.id_user +
             "') AS follow_user, (SELECT COUNT(*) FROM user_like_videos e WHERE e.id_user LIKE '" +
             myUser.id_user +
-            "' AND e.id_video = t.id_video) as like_video FROM ( SELECT a.id_user, a.nickname, a.full_name, a.avatar, a.tick, a.followed, a.following, a.total_likes, c.id_video , c.video_url, c.music, c.download,c.share,c.description,c.likes,c.comments FROM users a, user_have_videos b, videos c WHERE a.id_user = b.id_user AND c.id_video = b.id_video ) AS t  GROUP BY t.id_user, t.nickname, t.full_name, t.avatar, t.tick, t.followed, t.following, t.total_likes, t.id_video , t.video_url, t.music, t.download,t.share,t.description,t.likes,t.comments  ORDER BY RAND()";
+            "' AND e.id_video = t.id_video) as like_video FROM ( SELECT a.id_user, a.nickname, a.full_name, a.avatar, a.tick, a.followed, a.following, a.total_likes, c.id_video , c.video_url, c.music, c.download,c.share,c.description,c.likes,c.comments FROM users a, user_have_videos b, videos c WHERE a.id_user = b.id_user AND c.id_video = b.id_video ) AS t  GROUP BY t.id_user, t.nickname, t.full_name, t.avatar, t.tick, t.followed, t.following, t.total_likes, t.id_video , t.video_url, t.music, t.download,t.share,t.description,t.likes,t.comments  ORDER BY RAND() LIMIT 5";
 
         db.query(query, function (err, result) {
             if (err) return res.status(400);

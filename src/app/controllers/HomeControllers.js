@@ -5,7 +5,7 @@ class HomeControllers {
     show(req, res, next) {
         // Creating Query
         let query =
-            'SELECT * FROM videos  , users , user_have_videos WHERE videos.id_video = user_have_videos.id_video AND user_have_videos.id_user= users.id_user ORDER BY RAND()';
+            'SELECT * FROM videos  , users , user_have_videos WHERE videos.id_video = user_have_videos.id_video AND user_have_videos.id_user= users.id_user ORDER BY RAND() LIMIT 5';
 
         db.query(query, function (err, result) {
             if (err) return res.status(400);
