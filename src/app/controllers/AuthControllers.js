@@ -39,13 +39,24 @@ class AuthControlllers {
             if (err) return res.status(400);
 
             const token = jwt.sign({ data: result }, process.env.SECRET_KEY, {
-                expiresIn: '2h',
+                expiresIn: '1d',
+            });
+
+            let decodedCode;
+            jwt.verify(token, process.env.SECRET_KEY, function (err, decoded) {
+                if (err) return res.status(403);
+                decodedCode = decoded;
             });
 
             if (result.length === 0)
                 res.status(200).json({ message: 'Tài khoản không tồn tại', token: null });
             else {
-                res.status(200).json({ message: 'Đăng nhập thành công', token: token });
+                res.status(200).json({
+                    message: 'Đăng nhập thành công',
+                    token: token,
+                    exp: decodedCode.exp,
+                    id_user: decodedCode.data[0].id_user,
+                });
             }
         });
     }

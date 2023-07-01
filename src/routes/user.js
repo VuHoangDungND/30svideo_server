@@ -22,6 +22,7 @@ router.post('/unfollow', AuthControlllers.verifyToken, UserControllers.unFollow)
 router.post('/likeVideo', AuthControlllers.verifyToken, UserControllers.likeVideo);
 router.post('/unlikeVideo', AuthControlllers.verifyToken, UserControllers.unlikeVideo);
 
+router.get('/watch', AuthControlllers.verifyToken, UserControllers.watch);
 router.get('/showMyUser', AuthControlllers.verifyToken, UserControllers.showMyUser);
 router.get('/', AuthControlllers.verifyToken, UserControllers.show);
 

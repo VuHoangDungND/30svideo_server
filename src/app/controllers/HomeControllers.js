@@ -24,7 +24,7 @@ class HomeControllers {
         //response
         db.query(query, function (err, result) {
             if (err) return res.status(400);
-            res.status(200).json({ data: result });
+            res.status(200).json({ data: result[0] });
         });
     }
 
