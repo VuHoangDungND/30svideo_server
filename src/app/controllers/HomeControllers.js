@@ -48,7 +48,7 @@ class HomeControllers {
         });
     }
 
-    //[GET] /download
+    //[POST] /download
     download(req, res, next) {
         var { id_video } = req.body;
         var query;
@@ -62,7 +62,7 @@ class HomeControllers {
         });
     }
 
-    //[GET] /share
+    //[POST] /share
     share(req, res, next) {
         var { id_video } = req.body;
         var query;
@@ -73,6 +73,24 @@ class HomeControllers {
         //response
         db.query(query, function (err, result) {
             if (err) return res.status(400);
+        });
+    }
+
+    //[GET] / commnets
+    comments(req, res, next) {
+        var { id_video } = req.query;
+        var query;
+
+        // Creating Query
+        query =
+            "SELECT * FROM user_comment_video a, users b WHERE a.id_user = b.id_user AND a.id_video LIKE '" +
+            id_video +
+            "'";
+
+        //response
+        db.query(query, function (err, result) {
+            if (err) return res.status(400);
+            res.status(200).json({ data: result });
         });
     }
 }
