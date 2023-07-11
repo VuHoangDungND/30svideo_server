@@ -70,7 +70,17 @@ class UserControllers {
     }
     //[GET] /user/showMyUSer
     showMyUser(req, res, next) {
-        res.status(200).json({ data: req.decoded });
+        var myUser = req.decoded;
+        var query;
+        // Creating Query
+        query = "SELECT * FROM users WHERE id_user LIKE '" + myUser.id_user + "'";
+
+        //response
+
+        db.query(query, function (err, result) {
+            if (err) return res.status(400);
+            res.status(200).json({ data: result[0] });
+        });
     }
 
     //[GET] /user/userProfile
