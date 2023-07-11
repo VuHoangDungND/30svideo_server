@@ -129,18 +129,20 @@ class UserControllers {
                 },
                 function (err, result) {
                     dataVideo = result;
+                    console.log(result);
                 },
             );
         } catch (error) {
-            le.log(error);
+            console.log(error);
         }
 
         await unlinkAsync(file.path);
 
+        const public_id = dataVideo.public_id.split('/')[1];
         // Creating Query
         queryCreateVideo =
             "INSERT INTO videos (id_video, video_url, description, music) VALUES ('" +
-            dataVideo.asset_id +
+            public_id +
             "', '" +
             dataVideo.url +
             "', '" +
@@ -153,7 +155,7 @@ class UserControllers {
             "INSERT INTO user_have_videos (id_user, id_video) VALUES ('" +
             user.id_user +
             "', '" +
-            dataVideo.asset_id +
+            public_id +
             "') ";
         //response
         db.query(queryCreateVideo, function (err, result) {
@@ -164,6 +166,63 @@ class UserControllers {
             if (err) return res.status(400);
         });
         res.json({ message: 'upload video thanh cong' });
+    }
+
+    //[POST] /user/uploadImage
+    async uploadImage(req, res, next) {
+        const file = req.file;
+        const info = JSON.parse(JSON.parse(JSON.stringify(req.body)).info);
+        const myUser = req.decoded;
+        var dataImage, oldImageId, queryFindAvatar, queryEdit;
+
+        // Creating Query
+        queryFindAvatar = "SELECT avatar FROM users WHERE id_user LIKE'" + myUser.id_user + "' ";
+
+        //response
+        await db.query(queryFindAvatar, function (err, result) {
+            if (err) console.log(err);
+            oldImageId = result[0].avatar.split('/')[8].slice(0, -4);
+            if (oldImageId)
+                cloudinary.uploader
+                    .destroy(`avatar/${oldImageId}`, { invalidate: true })
+                    .catch((err) => console.log(err));
+        });
+
+        await cloudinary.uploader
+            .upload(
+                file.path,
+                {
+                    resource_type: 'image',
+                    folder: 'avatar',
+                },
+                function (err, result) {
+                    dataImage = result;
+                },
+            )
+            .catch((err) => console.log(err));
+
+        await unlinkAsync(file.path);
+
+        const public_id = dataImage.public_id.split('/')[1];
+
+        // Creating Query
+        queryEdit =
+            "UPDATE users SET nickname = '" +
+            info.nickname +
+            "', full_name ='" +
+            info.full_name +
+            "',avatar ='" +
+            dataImage.url +
+            "'  WHERE id_user LIKE'" +
+            myUser.id_user +
+            "' ";
+
+        //response
+        db.query(queryEdit, function (err, result) {
+            if (err) return res.status(400);
+        });
+
+        res.json({ message: 'Thay đổi thành công' });
     }
 
     //[POST] /user/like

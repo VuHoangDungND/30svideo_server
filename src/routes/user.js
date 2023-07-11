@@ -16,6 +16,13 @@ router.post(
     UserControllers.uploadVideo,
 );
 
+router.post(
+    '/uploadImage',
+    AuthControlllers.verifyToken,
+    upload.single('file'),
+    UserControllers.uploadImage,
+);
+
 router.post('/follow', AuthControlllers.verifyToken, UserControllers.follow);
 router.post('/unfollow', AuthControlllers.verifyToken, UserControllers.unFollow);
 
