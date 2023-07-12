@@ -130,21 +130,16 @@ class UserControllers {
         const user = req.decoded;
         var dataVideo, queryCreateVideo, queryUserHaveVideo;
 
-        try {
-            await cloudinary.uploader.upload(
-                file.path,
-                {
-                    resource_type: 'video',
-                    folder: 'video',
-                },
-                function (err, result) {
-                    dataVideo = result;
-                    console.log(result);
-                },
-            );
-        } catch (error) {
-            console.log(error);
-        }
+        await cloudinary.uploader.upload(
+            file.path,
+            {
+                resource_type: 'video',
+                folder: 'video',
+            },
+            function (err, result) {
+                dataVideo = result;
+            },
+        );
 
         await unlinkAsync(file.path);
 
@@ -190,16 +185,16 @@ class UserControllers {
 
         //response
         await db.query(queryFindAvatar, function (err, result) {
-            if (err) console.log(err);
-            oldImageId = result[0].avatar.split('/')[8].slice(0, -4);
-            if (oldImageId)
-                cloudinary.uploader
-                    .destroy(`avatar/${oldImageId}`, { invalidate: true })
-                    .catch((err) => console.log(err));
+            if (err) return res.status(400);
+            oldImageId = result[0].avatar.split('/')[8];
+            if (oldImageId) {
+                oldImageId = oldImageId.slice(0, -4);
+                cloudinary.uploader.destroy(`avatar/${oldImageId}`, { invalidate: true });
+            }
         });
 
-        await cloudinary.uploader
-            .upload(
+        if (file) {
+            await cloudinary.uploader.upload(
                 file.path,
                 {
                     resource_type: 'image',
@@ -208,29 +203,44 @@ class UserControllers {
                 function (err, result) {
                     dataImage = result;
                 },
-            )
-            .catch((err) => console.log(err));
+            );
 
-        await unlinkAsync(file.path);
+            await unlinkAsync(file.path);
 
-        const public_id = dataImage.public_id.split('/')[1];
+            const public_id = dataImage.public_id.split('/')[1];
 
-        // Creating Query
-        queryEdit =
-            "UPDATE users SET nickname = '" +
-            info.nickname +
-            "', full_name ='" +
-            info.full_name +
-            "',avatar ='" +
-            dataImage.url +
-            "'  WHERE id_user LIKE'" +
-            myUser.id_user +
-            "' ";
+            // Creating Query
+            queryEdit =
+                "UPDATE users SET nickname = '" +
+                info.nickname +
+                "', full_name ='" +
+                info.full_name +
+                "',avatar ='" +
+                dataImage.url +
+                "'  WHERE id_user LIKE'" +
+                myUser.id_user +
+                "' ";
 
-        //response
-        db.query(queryEdit, function (err, result) {
-            if (err) return res.status(400);
-        });
+            //response
+            db.query(queryEdit, function (err, result) {
+                if (err) return res.status(400);
+            });
+        } else {
+            // Creating Query
+            queryEdit =
+                "UPDATE users SET nickname = '" +
+                info.nickname +
+                "', full_name ='" +
+                info.full_name +
+                "'  WHERE id_user LIKE'" +
+                myUser.id_user +
+                "' ";
+
+            //response
+            db.query(queryEdit, function (err, result) {
+                if (err) return res.status(400);
+            });
+        }
 
         res.json({ message: 'Thay đổi thành công' });
     }
